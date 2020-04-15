@@ -1,12 +1,19 @@
+library(sqldf)
+library(dplyr)
 
-file1=read.table("household_power_consumption.txt", header = TRUE, sep=";")
+# Read incoming file selecting the 2 required dates
+
+file1 <- read.csv.sql("household_power_consumption.txt",
+                       sql="select * from file where (Date == '1/2/2007' or Date == '2/2/2007') and Voltage != '?' ",
+                       sep = ";")
+
+
+# Convert date column into date format
 file1$Date=as.Date(file1$Date, format = "%d/%m/%Y")
 
-# We will only be using data from the dates 2007-02-01 and 2007-02-02
-file1extract=rbind((file1[file1$Date=="2007-02-01",]), (file1[file1$Date=="2007-02-02",]))
-
+# Open png device and create required histogram
 png(filename="plot1.png", width=480, height=480, unit="px")
-with(file1extract, hist(as.numeric(as.character(file1extract$Global_active_power)), 
+with(file1, hist(as.numeric(as.character(file1$Global_active_power)), 
                         col="red", 
                         main="Global Active Power", 
                         xlab="Global Active Power (kilowatts)"))
